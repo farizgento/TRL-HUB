@@ -14,8 +14,8 @@
                     <h6 class="mb-0">Total Alat</h6>
                     <div class="stats-icon blue"><i class="bi bi-wrench"></i></div>
                 </div>
-                <div class="display-6 fw-semibold"></div>
-                <div class="text-muted"> tersedia</div>
+                <div class="display-6 fw-semibold">{{ $totalTools }}</div>
+                <div class="text-muted">{{ $availableTools }} tersedia</div>
             </div>
         </div>
     </div>
@@ -26,8 +26,8 @@
                     <h6 class="mb-0">Peminjaman Aktif</h6>
                     <div class="stats-icon green"><i class="bi bi-arrow-left-right"></i></div>
                 </div>
-                <div class="display-6 fw-semibold"></div>
-                <div class="text-muted">menunggu approval</div>
+                <div class="display-6 fw-semibold">{{ $activeRequests }}</div>
+                <div class="text-muted">{{ $pendingApproval }} menunggu approval</div>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
                     <h6 class="mb-0">Kerusakan Pending</h6>
                     <div class="stats-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
                 </div>
-                <div class="display-6 fw-semibold"></div>
+                <div class="display-6 fw-semibold">0</div>
                 <div class="text-muted">Menunggu penanganan</div>
             </div>
         </div>
@@ -50,7 +50,7 @@
                     <h6 class="mb-0">Overdue</h6>
                     <div class="stats-icon gray"><i class="bi bi-clock"></i></div>
                 </div>
-                <div class="display-6 fw-semibold"></div>
+                <div class="display-6 fw-semibold">{{ $overdueRequests }}</div>
                 <div class="text-muted">Perlu tindak lanjut</div>
             </div>
         </div>
@@ -77,28 +77,28 @@
                         <i class="bi bi-check-circle text-success"></i>
                         Alat Tersedia
                     </div>
-                    <div class="value text-success"></div>
+                    <div class="value text-success">{{ $availableTools }}</div>
                 </div>
                 <div class="status-row" style="background: rgba(59, 130, 246, 0.15);">
                     <div class="label">
                         <i class="bi bi-arrow-left-right text-primary"></i>
                         Sedang Dipinjam
                     </div>
-                    <div class="value text-primary"></div>
+                    <div class="value text-primary">{{ $borrowedTools }}</div>
                 </div>
                 <div class="status-row" style="background: rgba(168, 85, 247, 0.15);">
                     <div class="label">
                         <i class="bi bi-gear text-info"></i>
                         Dalam Perbaikan
                     </div>
-                    <div class="value text-info"></div>
+                    <div class="value text-info">{{ $maintenanceTools }}</div>
                 </div>
                 <div class="status-row" style="background: rgba(248, 113, 113, 0.15);">
                     <div class="label">
                         <i class="bi bi-x-circle text-danger"></i>
                         Tidak Aktif
                     </div>
-                    <div class="value text-danger"></div>
+                    <div class="value text-danger">{{ $inactiveTools }}</div>
                 </div>
             </div>
         </div>

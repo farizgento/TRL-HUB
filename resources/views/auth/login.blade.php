@@ -13,6 +13,11 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h4 class="mb-3">Login TRL Hub</h4>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            {{ $errors->first() }}
+                        </div>
+                    @endif
                     <form method="post" action="/login">
                         @csrf
                         <div class="mb-3">

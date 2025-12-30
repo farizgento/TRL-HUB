@@ -356,6 +356,10 @@
 <body>
 <div class="app-shell">
     <aside class="sidebar">
+        @php
+            $roleSlug = auth()->user()?->role?->slug;
+            $roleName = auth()->user()?->role?->name ?? 'User';
+        @endphp
         <div class="sidebar-brand">
             <div class="icon">
                 <i class="bi bi-wrench"></i>
@@ -368,20 +372,26 @@
 
         <nav class="nav-section">
             <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard"><i class="bi bi-grid"></i>Dashboard</a>
-            <a class="nav-link {{ request()->is('scan') ? 'active' : '' }}" href="/scan"><i class="bi bi-qr-code-scan"></i>Scan QR/Barcode</a>
-            <a class="nav-link {{ request()->is('tools*') ? 'active' : '' }}" href="/tools"><i class="bi bi-hammer"></i>Master Alat</a>
             <a class="nav-link {{ request()->is('borrow*') ? 'active' : '' }}" href="/borrow"><i class="bi bi-arrow-left-right"></i>Peminjaman</a>
-            <a class="nav-link {{ request()->is('damage*') ? 'active' : '' }}" href="/damage"><i class="bi bi-exclamation-triangle"></i>Kerusakan</a>
-            <a class="nav-link {{ request()->is('repairs*') ? 'active' : '' }}" href="/repairs"><i class="bi bi-gear"></i>Perbaikan</a>
-            <a class="nav-link {{ request()->is('reports*') ? 'active' : '' }}" href="/reports"><i class="bi bi-file-earmark-text"></i>Laporan</a>
+            @if ($roleSlug !== 'peminjam')
+                <a class="nav-link {{ request()->is('scan') ? 'active' : '' }}" href="/scan"><i class="bi bi-qr-code-scan"></i>Scan QR/Barcode</a>
+                <a class="nav-link {{ request()->is('tools*') ? 'active' : '' }}" href="/tools"><i class="bi bi-hammer"></i>Master Alat</a>
+                <a class="nav-link {{ request()->is('damage*') ? 'active' : '' }}" href="/damage"><i class="bi bi-exclamation-triangle"></i>Kerusakan</a>
+                <a class="nav-link {{ request()->is('repairs*') ? 'active' : '' }}" href="/repairs"><i class="bi bi-gear"></i>Perbaikan</a>
+                <a class="nav-link {{ request()->is('reports*') ? 'active' : '' }}" href="/reports"><i class="bi bi-file-earmark-text"></i>Laporan</a>
+            @endif
+            @if ($roleSlug === 'admin')
+                <a class="nav-link {{ request()->is('admin/masters') ? 'active' : '' }}" href="/admin/masters"><i class="bi bi-database"></i>Master Data</a>
+                <a class="nav-link {{ request()->is('admin/users') ? 'active' : '' }}" href="/admin/users"><i class="bi bi-people"></i>Manajemen User</a>
+            @endif
         </nav>
 
         <div class="sidebar-user">
             <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
                 <div>
-                    <div class="fw-semibold">{{ auth()->user()->email ?? 'admin@trl.localt' }}</div>
-                    <small class="text-uppercase text-muted">Requester</small>
+                    <div class="fw-semibold">{{ auth()->user()->name ?? auth()->user()->email ?? 'User' }}</div>
+                    <small class="text-uppercase text-muted">{{ $roleName }}</small>
                 </div>
             </div>
             <form action="/logout" method="post">
@@ -416,6 +426,11 @@
         </header>
 
         <main class="content-wrapper">
+            @if (session('status'))
+                <div class="alert alert-success">
+                    {{ session('status') }}
+                </div>
+            @endif
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">
