@@ -4,54 +4,61 @@ namespace Database\Seeders;
 
 use App\Models\AreaUnit;
 use App\Models\Tool;
-use App\Models\ToolCategory;
-use App\Models\ToolLocation;
 use Illuminate\Database\Seeder;
 
 class MasterDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $categories = [
-            ['category_code' => 'CAT-001', 'category_name' => 'Alat Ukur'],
-            ['category_code' => 'CAT-002', 'category_name' => 'Peralatan Mekanik'],
-        ];
-
-        foreach ($categories as $category) {
-            ToolCategory::firstOrCreate(['category_code' => $category['category_code']], $category);
-        }
-
-        $locations = [
-            ['location_code' => 'LOC-001', 'location_name' => 'Gudang Utama'],
-            ['location_code' => 'LOC-002', 'location_name' => 'Workshop'],
-        ];
-
-        foreach ($locations as $location) {
-            ToolLocation::firstOrCreate(['location_code' => $location['location_code']], $location);
-        }
-
+        // ---- AREA ----
         $areas = [
-            ['area_code' => 'AREA-001', 'area_name' => 'Unit A'],
-            ['area_code' => 'AREA-002', 'area_name' => 'Unit B'],
+            ['name' => 'Unit A', 'unit' => 'Area 1'],
+            ['name' => 'Unit B', 'unit' => 'Area 2'],
         ];
 
         foreach ($areas as $area) {
-            AreaUnit::firstOrCreate(['area_code' => $area['area_code']], $area);
+            AreaUnit::firstOrCreate(['name' => $area['name']], $area);
         }
 
-        $category = ToolCategory::where('category_code', 'CAT-001')->first();
-        $location = ToolLocation::where('location_code', 'LOC-001')->first();
+        $unitA = AreaUnit::where('name', 'Unit A')->first();
+        $unitB = AreaUnit::where('name', 'Unit B')->first();
 
-        Tool::firstOrCreate(
-            ['asset_no' => 'AST-001'],
+        // ---- TOOLS ----
+        $tools = [
             [
-                'barcode' => 'BR-TRL-001',
-                'tool_name' => 'Multimeter Digital',
-                'category_id' => $category?->id,
-                'location_id' => $location?->id,
-                'condition_status' => 'baik',
-                'availability_status' => 'tersedia',
-            ]
-        );
+                'nomer_asset'        => 'AST-001',
+                'barcode'            => 'BR-TRL-001',
+                'name'               => 'Multimeter Digital',
+                'current_location_id'=> $unitA?->id,
+                'condition'          => 'baik',
+                'current_status'     => 'tersedia',
+                'notes'              => 'Tool awal untuk unit A',
+            ],
+            [
+                'nomer_asset'        => 'AST-002',
+                'barcode'            => 'BR-TRL-002',
+                'name'               => 'Obeng Set',
+                'current_location_id'=> $unitA?->id,
+                'condition'          => 'baik',
+                'current_status'     => 'tersedia',
+                'notes'              => null,
+            ],
+            [
+                'nomer_asset'        => 'AST-003',
+                'barcode'            => 'BR-TRL-003',
+                'name'               => 'Tang Kombinasi',
+                'current_location_id'=> $unitA?->id,
+                'condition'          => 'baik',
+                'current_status'     => 'tersedia',
+                'notes'              => null,
+            ],
+        ];
+
+        foreach ($tools as $tool) {
+            Tool::firstOrCreate(
+                ['nomer_asset' => $tool['nomer_asset']],
+                $tool
+            );
+        }
     }
 }

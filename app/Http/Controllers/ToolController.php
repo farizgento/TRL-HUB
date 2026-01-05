@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tool;
-use App\Models\ToolCategory;
-use App\Models\ToolLocation;
+use App\Models\AreaUnit;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -12,94 +11,101 @@ class ToolController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $status = $request->query('status');
-        $condition = $request->query('condition');
+        $search     = $request->query('search');
+        $status     = $request->query('status');
+        $condition  = $request->query('condition');
 
-        $tools = Tool::with(['category', 'location'])
+        $tools = Tool::with('location')
             ->when($search, function ($query) use ($search) {
-                $query->where(function ($inner) use ($search) {
-                    $inner->where('asset_no', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
-                        ->orWhere('tool_name', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('nomer_asset', 'like', "%{$search}%")
+                      ->orWhere('barcode', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%");
                 });
             })
-            ->when($status, fn ($query) => $query->where('availability_status', $status))
-            ->when($condition, fn ($query) => $query->where('condition_status', $condition))
-            ->orderBy('tool_name')
-            ->get();
+            ->when($status, fn ($q) => $q->where('current_status', $status))
+            ->when($condition, fn ($q) => $q->where('condition', $condition))
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('tools.index', [
             'tools' => $tools,
-            'statusOptions' => Tool::availabilityOptions(),
-            'conditionOptions' => Tool::conditionOptions(),
-            'filters' => [
-                'search' => $search,
-                'status' => $status,
-                'condition' => $condition,
+            'statusOptions' => [
+                'tersedia'   => 'Tersedia',
+                'rusak'      => 'Rusak',
+                'dipinjam'   => 'Dipinjam',
+                'diperbaiki' => 'Diperbaiki',
             ],
-        ]);
-    }
-
-    public function create()
-    {
-        return view('tools.create', [
-            'categories' => ToolCategory::orderBy('category_name')->get(),
-            'locations' => ToolLocation::orderBy('location_name')->get(),
-            'statusOptions' => Tool::availabilityOptions(),
-            'conditionOptions' => Tool::conditionOptions(),
+            'conditionOptions' => [
+                'baik'          => 'Baik',
+                'rusak ringan'  => 'Rusak Ringan',
+                'rusak berat'   => 'Rusak Berat',
+                'hilang'        => 'Hilang',
+            ],
+            'areaunits' => AreaUnit::orderBy('name')->get(),
+            'filters' => compact('search','status','condition'),
         ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'asset_no' => ['required', 'string', 'max:255', 'unique:tools,asset_no'],
-            'barcode' => ['nullable', 'string', 'max:255', 'unique:tools,barcode'],
-            'tool_name' => ['required', 'string', 'max:255'],
-            'category_id' => ['nullable', 'exists:tool_categories,id'],
-            'location_id' => ['nullable', 'exists:tool_locations,id'],
-            'condition_status' => ['required', Rule::in(array_keys(Tool::conditionOptions()))],
-            'availability_status' => ['required', Rule::in(array_keys(Tool::availabilityOptions()))],
-            'notes' => ['nullable', 'string'],
+            'name'                => ['required','string','max:255'],
+            'nomer_asset'         => ['nullable','string','max:255'],
+            'barcode'             => ['nullable','string','max:255','unique:tools,barcode'],
+            'current_location_id' => ['nullable','exists:area_units,id'],
+            'current_status'      => ['required', Rule::in(['tersedia','rusak','dipinjam','diperbaiki'])],
+            'condition'           => ['required', Rule::in(['baik','rusak ringan','rusak berat','hilang'])],
+            'notes'               => ['nullable','string'],
         ]);
 
         Tool::create($data);
 
-        return redirect('/tools')->with('status', 'Alat berhasil ditambahkan.');
-    }
-
-    public function show(Tool $tool)
-    {
-        return view('tools.show', ['tool' => $tool->load(['category', 'location'])]);
-    }
-
-    public function edit(Tool $tool)
-    {
-        return view('tools.edit', [
-            'tool' => $tool,
-            'categories' => ToolCategory::orderBy('category_name')->get(),
-            'locations' => ToolLocation::orderBy('location_name')->get(),
-            'statusOptions' => Tool::availabilityOptions(),
-            'conditionOptions' => Tool::conditionOptions(),
-        ]);
+        return redirect()->route('tools.index')
+            ->with('created', 'Alat berhasil ditambahkan.');
     }
 
     public function update(Request $request, Tool $tool)
     {
         $data = $request->validate([
-            'asset_no' => ['required', 'string', 'max:255', Rule::unique('tools', 'asset_no')->ignore($tool->id)],
-            'barcode' => ['nullable', 'string', 'max:255', Rule::unique('tools', 'barcode')->ignore($tool->id)],
-            'tool_name' => ['required', 'string', 'max:255'],
-            'category_id' => ['nullable', 'exists:tool_categories,id'],
-            'location_id' => ['nullable', 'exists:tool_locations,id'],
-            'condition_status' => ['required', Rule::in(array_keys(Tool::conditionOptions()))],
-            'availability_status' => ['required', Rule::in(array_keys(Tool::availabilityOptions()))],
-            'notes' => ['nullable', 'string'],
+            'name' => ['required','string','max:255'],
+
+            'nomer_asset' => [
+                'nullable','string','max:255',
+            ],
+
+            'barcode' => [
+                'nullable','string','max:255',
+                Rule::unique('tools','barcode')->ignore($tool->id),
+            ],
+
+            'current_location_id' => ['nullable','exists:area_units,id'],
+
+            'current_status' => [
+                'required',
+                Rule::in(['tersedia','rusak','dipinjam','diperbaiki']),
+            ],
+
+            'condition' => [
+                'required',
+                Rule::in(['baik','rusak ringan','rusak berat','hilang']),
+            ],
+
+            'notes' => ['nullable','string'],
         ]);
 
         $tool->update($data);
 
-        return redirect('/tools')->with('status', 'Alat berhasil diperbarui.');
+        return redirect()->route('tools.index')
+            ->with('updated', 'Alat berhasil diperbarui.');
+    }
+
+    public function destroy(Tool $tool)
+    {
+        $tool->delete();
+
+        return redirect()->route('tools.index')
+            ->with('deleted', 'Alat berhasil dihapus.');
     }
 }

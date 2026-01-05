@@ -10,56 +10,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Tool extends Model
 {
     use HasFactory;
-
-    public const CONDITION_GOOD = 'baik';
-    public const CONDITION_DAMAGED = 'rusak';
-
-    public const AVAILABILITY_AVAILABLE = 'tersedia';
-    public const AVAILABILITY_BORROWED = 'dipinjam';
-    public const AVAILABILITY_MAINTENANCE = 'perbaikan';
-    public const AVAILABILITY_INACTIVE = 'tidak_aktif';
-
     protected $fillable = [
-        'asset_no',
-        'barcode',
-        'tool_name',
-        'category_id',
-        'location_id',
-        'condition_status',
-        'availability_status',
-        'notes',
+        'name','nomer_asset','barcode',
+        'current_location_id','current_status',
+        'condition','notes'
     ];
 
-    public function category(): BelongsTo
+    public function location()
     {
-        return $this->belongsTo(ToolCategory::class, 'category_id');
+        return $this->belongsTo(AreaUnit::class, 'current_location_id');
     }
 
-    public function location(): BelongsTo
+    public function images()
     {
-        return $this->belongsTo(ToolLocation::class, 'location_id');
+        return $this->hasMany(ToolImage::class);
     }
 
-    public function borrowItems(): HasMany
-    {
-        return $this->hasMany(BorrowRequestItem::class);
-    }
-
-    public static function conditionOptions(): array
-    {
-        return [
-            self::CONDITION_GOOD => 'Baik',
-            self::CONDITION_DAMAGED => 'Rusak',
-        ];
-    }
-
-    public static function availabilityOptions(): array
-    {
-        return [
-            self::AVAILABILITY_AVAILABLE => 'Tersedia',
-            self::AVAILABILITY_BORROWED => 'Dipinjam',
-            self::AVAILABILITY_MAINTENANCE => 'Perbaikan',
-            self::AVAILABILITY_INACTIVE => 'Tidak Aktif',
-        ];
-    }
 }

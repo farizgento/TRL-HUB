@@ -9,8 +9,8 @@ return new class extends Migration {
     {
         Schema::create('area_units', function (Blueprint $table) {
             $table->id();
-            $table->string('area_code')->unique();
-            $table->string('area_name');
+            $table->string('name')->unique();
+            $table->string('unit');
             $table->timestamps();
         });
     }

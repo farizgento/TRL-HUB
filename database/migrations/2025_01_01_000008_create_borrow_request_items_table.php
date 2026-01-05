@@ -9,17 +9,16 @@ return new class extends Migration {
     {
         Schema::create('borrow_request_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('borrow_request_id')
-                ->constrained('borrow_requests')
-                ->cascadeOnDelete();
-            $table->string('item_no')->nullable();
-            $table->string('permintaan_alat');
-            $table->foreignId('tool_id')
-                ->nullable()
-                ->constrained('tools')
-                ->nullOnDelete();
-            $table->string('return_condition')->nullable();
+            $table->unsignedBigInteger('borrow_request_id');
+            $table->unsignedBigInteger('tool_id');
             $table->timestamps();
+
+            $table->foreign('borrow_request_id')
+                ->references('id')->on('borrow_requests')
+                ->cascadeOnDelete();
+
+            $table->foreign('tool_id')
+                ->references('id')->on('tools');
         });
     }
 

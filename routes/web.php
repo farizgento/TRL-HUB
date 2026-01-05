@@ -25,31 +25,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', fn () => view('reports.index'));
 
     Route::middleware('role:admin,staff')->group(function () {
-        Route::get('/tools', [ToolController::class, 'index']);
-        Route::get('/tools/create', [ToolController::class, 'create']);
-        Route::post('/tools', [ToolController::class, 'store']);
-        Route::get('/tools/{tool}', [ToolController::class, 'show']);
-        Route::get('/tools/{tool}/edit', [ToolController::class, 'edit']);
-        Route::put('/tools/{tool}', [ToolController::class, 'update']);
+    Route::get('/tools', [ToolController::class, 'index'])->name('tools.index');
+    Route::post('/tools', [ToolController::class, 'store'])->name('tools.store');
+    Route::put('/tools/{tool}', [ToolController::class, 'update'])->name('tools.update');
+    Route::delete('/tools/{tool}', [ToolController::class, 'destroy'])->name('tools.destroy');
     });
+    
+    // daftar permintaan
+    Route::get('/borrow-requests', [BorrowRequestController::class, 'index'])
+        ->name('borrow-requests.index');
 
-    Route::get('/borrow', [BorrowRequestController::class, 'index']);
-    Route::get('/borrow/create', [BorrowRequestController::class, 'create'])->middleware('role:peminjam,admin');
-    Route::post('/borrow', [BorrowRequestController::class, 'store'])->middleware('role:peminjam,admin');
-    Route::get('/borrow/{borrowRequest}', [BorrowRequestController::class, 'show']);
-    Route::get('/borrow/{borrowRequest}/edit', [BorrowRequestController::class, 'edit'])->middleware('role:staff,admin');
-    Route::put('/borrow/{borrowRequest}', [BorrowRequestController::class, 'update'])->middleware('role:staff,admin');
+    // form tambah permintaan
+    Route::get('/borrow-requests/create', [BorrowRequestController::class, 'create'])
+        ->name('borrow-requests.create');
 
-    Route::post('/borrow/{borrowRequest}/action/submit', [BorrowRequestController::class, 'submit'])
-        ->middleware('role:peminjam,admin');
-    Route::post('/borrow/{borrowRequest}/action/approve-l1', [BorrowRequestController::class, 'approveL1'])
-        ->middleware('role:staff,admin');
-    Route::post('/borrow/{borrowRequest}/action/approve-final', [BorrowRequestController::class, 'approveFinal'])
-        ->middleware('role:approval,admin');
-    Route::post('/borrow/{borrowRequest}/action/dispatch', [BorrowRequestController::class, 'dispatch'])
-        ->middleware('role:staff,admin');
-    Route::post('/borrow/{borrowRequest}/action/return', [BorrowRequestController::class, 'markReturned'])
-        ->middleware('role:staff,admin');
+    // simpan permintaan
+    Route::post('/borrow-requests', [BorrowRequestController::class, 'store'])
+        ->name('borrow-requests.store');
+
+    // delete permintaan
+    Route::delete('/borrow-requests/{id}', [BorrowRequestController::class, 'destroy'])
+        ->name('borrow-requests.destroy');
+
+        // update permintaan
+    Route::put('/borrow-requests/{id}', [BorrowRequestController::class, 'update'])
+        ->name('borrow-requests.update');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/users', [AdminController::class, 'users']);

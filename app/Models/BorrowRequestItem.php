@@ -10,20 +10,14 @@ class BorrowRequestItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'borrow_request_id',
-        'item_no',
-        'permintaan_alat',
-        'tool_id',
-        'return_condition',
-    ];
+ protected $fillable = ['borrow_request_id','tool_id'];
 
-    public function request(): BelongsTo
+    public function borrowRequest()
     {
-        return $this->belongsTo(BorrowRequest::class, 'borrow_request_id');
+        return $this->belongsTo(BorrowRequest::class);
     }
 
-    public function tool(): BelongsTo
+    public function tool()
     {
         return $this->belongsTo(Tool::class);
     }

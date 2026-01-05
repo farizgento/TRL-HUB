@@ -10,13 +10,10 @@ class AreaUnit extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'area_code',
-        'area_name',
-    ];
+    protected $fillable = ['name', 'unit'];
 
-    public function borrowRequests(): HasMany
+    public function tools()
     {
-        return $this->hasMany(BorrowRequest::class);
+        return $this->hasMany(Tool::class, 'current_location_id');
     }
 }
